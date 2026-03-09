@@ -14,6 +14,14 @@ yarn-error.log*
 seed/
 uploads/
 ai-service/.venv/
+
+# ML model files (large binary files - use Git LFS or keep local only)
+models/
+*.safetensors
+*.pth
+*.pt
+*.h5
+*.onnx
 ai-service/__pycache__/
 ai-service/*.pyc
 server/trace.txt

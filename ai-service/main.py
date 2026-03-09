@@ -103,6 +103,7 @@ def load_models():
             "summarization",
             model=MODEL_SUMM_DIR,
             tokenizer=MODEL_SUMM_DIR,
+            framework="pt",
             device=device,
         )
         print("[OK] Summarizer loaded")

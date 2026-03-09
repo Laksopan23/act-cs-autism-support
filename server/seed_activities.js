@@ -2,11 +2,11 @@ const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
 const Activity = require('./models/Activity');
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const seedActivities = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/autism_support');
+        await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/autism_support');
         console.log('Connected to MongoDB for seeding...');
 
         const activitiesPath = path.join(__dirname, 'data', 'activities.json');

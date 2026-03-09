@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const { protect } = require('../middleware/auth');
+
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET || 'secret123', { expiresIn: '30d' });
@@ -11,6 +14,13 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 router.post('/register', async (req, res) => {
     try {
+        if (!isDbConnected()) {
+            return res.status(503).json({
+                success: false,
+                message: 'Database is not connected. Check MongoDB and MONGO_URI/MONGODB_URI.',
+            });
+        }
+
         const { name, email, password, role } = req.body;
         const userExists = await User.findOne({ email });
 
@@ -38,6 +48,13 @@ router.post('/register', async (req, res) => {
 // @route   POST /api/auth/login
 router.post('/login', async (req, res) => {
     try {
+        if (!isDbConnected()) {
+            return res.status(503).json({
+                success: false,
+                message: 'Database is not connected. Check MongoDB and MONGO_URI/MONGODB_URI.',
+            });
+        }
+
         const { email, password } = req.body;
         const user = await User.findOne({ email }).select('+password');
 

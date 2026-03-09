@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 
 const protect = async (req, res, next) => {
@@ -6,6 +7,13 @@ const protect = async (req, res, next) => {
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         try {
+            if (mongoose.connection.readyState !== 1) {
+                return res.status(503).json({
+                    success: false,
+                    message: 'Database is not connected. Check MongoDB and MONGO_URI/MONGODB_URI.'
+                });
+            }
+
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret123');
             req.user = await User.findById(decoded.id).select('-password');

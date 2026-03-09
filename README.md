@@ -135,7 +135,7 @@ Create `.env` files in the following directories:
 **server/.env**
 ```env
 PORT=5000
-MONGODB_URI=mongodb://localhost:27017/autism_support
+MONGO_URI=mongodb://localhost:27017/autism_support
 JWT_SECRET=your_jwt_secret_key_here
 AI_SERVICE_URL=http://localhost:9000
 ```

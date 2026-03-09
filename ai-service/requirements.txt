@@ -3,7 +3,7 @@ uvicorn
 python-multipart
 torch
 librosa
-transformers
+transformers<5
 numpy
 pillow
 tensorflow
