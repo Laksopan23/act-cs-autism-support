@@ -1,0 +1,14 @@
+{
+  "name": "personalized-autism-therapy-support-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Final integrated autism therapy support system workspace",
+  "scripts": {
+    "install:all": "npm install --prefix frontend && npm install --prefix backend/gateway && npm install --prefix backend/services/emotional-activity-recommender && npm install --prefix backend/services/therapy-collab",
+    "seed": "npm run seed --prefix backend/services/therapy-collab",
+    "seed:demo": "npm run seed:demo --prefix backend/services/therapy-collab",
+    "start": "node backend/scripts/run-services.js",
+    "start:frontend": "npm run dev --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend"
+  }
+}

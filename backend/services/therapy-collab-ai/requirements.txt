@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-multipart
+torch
+librosa
+transformers<5
+numpy
+pillow
+tensorflow
+opencv-python
+pydantic
+python-dotenv
+scikit-learn
+joblib
