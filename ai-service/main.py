@@ -1,5 +1,4 @@
 import os
-import json
 import shutil
 from datetime import datetime
 from typing import Dict, Any, List
@@ -10,6 +9,10 @@ from fastapi import FastAPI, UploadFile, File, Body
 from fastapi.middleware.cors import CORSMiddleware
 from transformers import pipeline
 from pydantic import BaseModel
+from treatment_recommender import (
+    load_treatment_model,
+    predict_treatment_suggestions
+)
 
 UPLOAD_DIR = os.path.join(os.path.dirname(__file__), "uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -18,21 +21,7 @@ MODEL_ISSUE_DIR = os.getenv("MODEL_ISSUE_DIR", "../models/issue_classifier_rober
 MODEL_URGENCY_DIR = os.getenv("MODEL_URGENCY_DIR", "../models/urgency_classifier/checkpoints/checkpoint-876")
 MODEL_SUMM_DIR = os.getenv("MODEL_SUMM_DIR", "facebook/bart-large-cnn")
 WHISPER_MODEL = os.getenv("WHISPER_MODEL", "openai/whisper-small")
-
-# Emotion Recognition (from PATSS)
-try:
-    import tensorflow as tf
-    from tensorflow.keras.applications.densenet import preprocess_input
-    import numpy as np
-    from PIL import Image
-    import cv2
-    TF_AVAILABLE = True
-except Exception:
-    TF_AVAILABLE = False
-
-MODEL_EMOTION_PATH = os.path.join(os.path.dirname(__file__), "../models/emotion_recognition/densenet121.keras")
-EMOTION_LABELS = ["Natural", "anger", "fear", "joy", "sadness", "surprise"]
-emotion_model = None
+MODEL_TREATMENT_DIR = os.getenv("MODEL_TREATMENT_DIR", "../models/treatment_recommender")
 
 app = FastAPI(title="ACT-CS AI Service", version="1.0")
 
@@ -50,6 +39,8 @@ asr = None
 issue_clf = None
 urgency_clf = None
 summarizer = None
+treatment_model = None
+treatment_metadata = None
 
 def top_k(scores: List[Dict[str, Any]], k=3):
     scores_sorted = sorted(scores, key=lambda x: x["score"], reverse=True)
@@ -58,9 +49,21 @@ def top_k(scores: List[Dict[str, Any]], k=3):
 def clean_text(text: str) -> str:
     return " ".join(str(text).strip().split())
 
+def format_label(label: str) -> str:
+    return " ".join(part.capitalize() for part in str(label or "unknown").split("_") if part) or "Unknown"
+
+def build_result_summary(issue_label: str, urgency_label: str, summary: str) -> str:
+    issue = format_label(issue_label)
+    urgency = format_label(urgency_label).lower()
+    clean_summary = clean_text(summary or "")
+
+    if not clean_summary:
+        return f"{issue} was identified with {urgency} urgency."
+    return f"{issue} was identified with {urgency} urgency. {clean_summary}"
+
 @app.on_event("startup")
 def load_models():
-    global asr, issue_clf, urgency_clf, summarizer
+    global asr, issue_clf, urgency_clf, summarizer, treatment_model, treatment_metadata
     try:
         print("Loading ASR model...")
         asr = pipeline("automatic-speech-recognition", model=WHISPER_MODEL, device=device)
@@ -111,17 +114,16 @@ def load_models():
         print(f"Error loading summarizer: {e}")
         summarizer = None
 
-    global emotion_model
-    if TF_AVAILABLE and os.path.exists(MODEL_EMOTION_PATH):
-        try:
-            print(f"Loading emotion model from {MODEL_EMOTION_PATH}...")
-            emotion_model = tf.keras.models.load_model(MODEL_EMOTION_PATH)
-            print("[OK] Emotion model loaded")
-        except Exception as e:
-            print(f"Error loading emotion model: {e}")
-            emotion_model = None
-    else:
-        print(f"Emotion model not found or TF not available. TF: {TF_AVAILABLE}")
+    try:
+        treatment_model, treatment_metadata = load_treatment_model(MODEL_TREATMENT_DIR)
+        if treatment_model is not None:
+            print(f"[OK] Treatment recommender loaded from {MODEL_TREATMENT_DIR}")
+        else:
+            print("Treatment recommender not found. Using rule fallback.")
+    except Exception as e:
+        print(f"Error loading treatment recommender: {e}")
+        treatment_model = None
+        treatment_metadata = None
 
 @app.post("/analyze-voice")
 async def analyze_voice(file: UploadFile = File(...)):
@@ -180,6 +182,16 @@ async def analyze_voice(file: UploadFile = File(...)):
         except Exception as e:
             print(f"Summarization error: {e}")
 
+        result_summary = build_result_summary(issue_label, urgency_label, summary)
+        treatment_result = predict_treatment_suggestions(
+            treatment_model,
+            treatment_metadata,
+            transcript,
+            issue_label,
+            urgency_label
+        )
+        treatment_suggestions = treatment_result["treatment_suggestions"]
+
         # Cleanup temporary files
         try:
             os.remove(audio_path)
@@ -194,6 +206,12 @@ async def analyze_voice(file: UploadFile = File(...)):
             "urgency_label": urgency_label,
             "urgency_top3": urgency_top3,
             "summary": summary,
+            "result_summary": result_summary,
+            "treatment_suggestions": treatment_suggestions,
+            "treatment_profile": treatment_result["treatment_profile"],
+            "treatment_model_used": treatment_result["treatment_model_used"],
+            "treatment_model_confidence": treatment_result["treatment_model_confidence"],
+            "treatment_training_mode": treatment_result["treatment_training_mode"],
         }
     except Exception as e:
         print(f"Analyze voice error: {e}")
@@ -242,6 +260,16 @@ async def analyze_text(request: TextRequest):
         except Exception as e:
             print(f"Summarization error: {e}")
 
+        result_summary = build_result_summary(issue_label, urgency_label, summary)
+        treatment_result = predict_treatment_suggestions(
+            treatment_model,
+            treatment_metadata,
+            transcript,
+            issue_label,
+            urgency_label
+        )
+        treatment_suggestions = treatment_result["treatment_suggestions"]
+
         return {
             "transcript": transcript,
             "issue_label": issue_label,
@@ -249,6 +277,12 @@ async def analyze_text(request: TextRequest):
             "urgency_label": urgency_label,
             "urgency_top3": urgency_top3,
             "summary": summary,
+            "result_summary": result_summary,
+            "treatment_suggestions": treatment_suggestions,
+            "treatment_profile": treatment_result["treatment_profile"],
+            "treatment_model_used": treatment_result["treatment_model_used"],
+            "treatment_model_confidence": treatment_result["treatment_model_confidence"],
+            "treatment_training_mode": treatment_result["treatment_training_mode"],
         }
     except Exception as e:
         print(f"Analyze text error: {e}")
@@ -258,41 +292,3 @@ async def analyze_text(request: TextRequest):
             "error": str(e),
             "message": "Failed to analyze text"
         }
-
-@app.post("/predict")
-async def predict(file: UploadFile = File(...)):
-    if not TF_AVAILABLE or emotion_model is None:
-        return {"error": "Emotion model not loaded or TF not available", "emotion": "Neutral", "confidence": 0.0}
-
-    try:
-        # Save temp image
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_path = os.path.join(UPLOAD_DIR, f"{ts}_{file.filename}")
-        with open(save_path, "wb") as f:
-            shutil.copyfileobj(file.file, f)
-
-        # Inference logic from PATSS
-        im = Image.open(save_path).convert("RGB")
-        
-        # Simple face detection fallback (can be improved later with CV2 logic)
-        im = im.resize((224, 224))
-        x = np.array(im).astype("float32")
-        x = preprocess_input(x)
-        x = np.expand_dims(x, 0)
-        
-        probs = emotion_model.predict(x, verbose=0)[0]
-        top_idx = int(np.argmax(probs))
-        pred = EMOTION_LABELS[top_idx]
-        probs_dict = {EMOTION_LABELS[i]: float(probs[i]) for i in range(len(EMOTION_LABELS))}
-
-        # Cleanup
-        os.remove(save_path)
-
-        return {
-            "emotion": pred,
-            "confidence": float(probs[top_idx]),
-            "allPredictions": probs_dict,
-        }
-    except Exception as e:
-        print(f"Emotion prediction error: {e}")
-        return {"error": str(e), "emotion": "Neutral", "confidence": 0.0}
