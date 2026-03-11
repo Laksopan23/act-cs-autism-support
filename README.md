@@ -1,135 +1,103 @@
-# AutismCare
+# Personalized Autism Therapy Support System
 
-AutismCare is a clinical autism support platform with parent and doctor portals, AI-assisted voice/text analysis, doctor-reviewed treatment plans, care tracking, and downloadable reports.
+This repository is organized as a frontend plus a service-oriented backend:
 
-## Features
+- `frontend/`
+- `backend/gateway/`
+- `backend/scripts/`
+- `backend/services/therapy-collab/`
+- `backend/services/therapy-collab-ai/`
 
-- Parent and doctor authentication
-- Child profiles and assigned specialists
-- AI voice and text analysis
-- Issue classification and urgency detection
-- AI treatment suggestions with doctor review
-- Ongoing care-plan tracking and downloadable reports
-- Parent-doctor messaging and notifications
+## Runtime layout
 
-## Stack
+- `frontend` runs on `http://localhost:3000`
+- `backend/gateway` runs on `http://localhost:5000`
+- `backend/services/therapy-collab` runs on `http://localhost:5001`
+- `backend/services/therapy-collab-ai` runs on `http://localhost:8000`
 
-- Frontend: React 18, Tailwind CSS
-- Backend: Node.js, Express, MongoDB
-- AI service: FastAPI, Transformers, scikit-learn
-- Models: Whisper, RoBERTa, treatment recommender
-
-## Prerequisites
-
-- Node.js 18+
-- Python 3.10+
-- MongoDB 6+
+The frontend talks only to the gateway. The gateway proxies `/api/*` requests to the therapy-collab service. The therapy-collab service calls the AI service for voice and text analysis.
 
 ## Setup
 
-### 1. Install dependencies
+Install everything from the repo root:
 
-```bash
-npm install
-npm install --prefix frontend
-npm install --prefix backend
-
-cd ai-service
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-cd ..
+```powershell
+npm run install:all
 ```
 
-### 2. Configure environment files
+Or use the Windows helper:
 
-`backend/.env`
-
-```env
-PORT=5000
-MONGO_URI=mongodb://localhost:27017/autism_support
-JWT_SECRET=your_jwt_secret_key_here
-AI_URL=http://localhost:8000/analyze-voice
-AI_TEXT_URL=http://localhost:8000/analyze-text
+```powershell
+.\setup.bat
 ```
 
-`ai-service/.env`
+## Local MongoDB
 
-```env
-PORT=8000
+The backend uses the local MongoDB service on:
+
+```text
+mongodb://127.0.0.1:27017/autism_support
 ```
 
-### 3. Seed data
+Before starting the app, make sure your local MongoDB service is running.
+On Windows this is typically the `MongoDB` service.
 
-```bash
-npm run seed --prefix backend
-npm run seed:demo --prefix backend
+## Start
+
+Start all services from the repo root:
+
+```powershell
+npm start
 ```
 
-`seed:demo` adds sample users, children, analyses, and reviewed care plans without wiping existing data.
+Windows wrapper:
 
-## Run
-
-Open 3 terminals:
-
-```bash
-npm start --prefix frontend
-node backend/index.js
-cd ai-service
-.venv\Scripts\python.exe -m uvicorn main:app --host 127.0.0.1 --port 8000
+```powershell
+.\START_ALL.bat
 ```
 
-Services:
+Individual services:
 
-- Frontend: `http://localhost:3000`
-- Backend: `http://localhost:5000`
-- AI service: `http://localhost:8000`
+```powershell
+npm run start:frontend
+```
 
-## Main Paths
+```powershell
+npm run start:gateway
+```
 
-- Parent dashboard: `/parent/dashboard`
-- Parent child profile: `/parent/children/:id`
-- Doctor dashboard: `/doctor/dashboard`
-- Doctor patient profile: `/doctor/patients/:id`
+```powershell
+npm run start:backend
+```
 
-## API Overview
+```powershell
+npm run start:ai
+```
 
-### Auth
+## Seed demo data
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
+```powershell
+npm run seed:demo
+```
 
-### Parent
-
-- `GET /api/parent/children`
-- `POST /api/parent/children`
-- `GET /api/parent/children/:id`
-- `GET /api/parent/children/:id/analyses`
-- `POST /api/parent/children/:id/analyses`
-- `GET /api/parent/analyses/:analysisId/report`
-
-### Doctor
-
-- `GET /api/doctor/patients`
-- `GET /api/doctor/patients/:id`
-- `GET /api/doctor/patients/:id/analyses`
-- `POST /api/doctor/patients/:id/analyses`
-- `PUT /api/doctor/analyses/:analysisId/review`
-- `GET /api/doctor/analyses/:analysisId/report`
-
-### AI service
-
-- `POST /analyze-voice`
-- `POST /analyze-text`
-- `GET /health`
-
-## Default Demo Credentials
+Demo users:
 
 - Parent: `parent@example.com / password123`
 - Doctor: `doctor@example.com / password123`
 
-## Notes
+## Backend structure
 
-- The old legacy activity and image-emotion stack has been removed from the active runtime.
-- Existing care-plan and analysis workflows remain active.
+- `backend/COMMON_AUTH.md`
+- `backend/gateway/index.js`
+- `backend/services/therapy-collab/index.js`
+- `backend/services/therapy-collab-ai/main.py`
+
+## Frontend structure
+
+The active UI is grouped under:
+
+- `frontend/src/pages/therapy-collab/App.js`
+- `frontend/src/pages/therapy-collab/components/`
+- `frontend/src/pages/therapy-collab/contexts/`
+- `frontend/src/pages/therapy-collab/pages/`
+- `frontend/src/pages/therapy-collab/utils/`

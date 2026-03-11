@@ -1,29 +1,30 @@
 @echo off
 echo ================================================
-echo   AUTISMCARE UNIFIED SETUP SCRIPT
+echo   PERSONALIZED AUTISM THERAPY SUPPORT SETUP
 echo ================================================
 echo.
 
-REM Install Node dependencies
-echo [1/3] Installing Backend dependencies...
-cd backend && npm install && cd ..
+echo [1/4] Installing gateway dependencies...
+cd backend\gateway && npm install && cd ..\..
 
-echo [2/3] Installing Frontend dependencies...
+echo [2/4] Installing therapy-collab service dependencies...
+cd backend\services\therapy-collab && npm install && cd ..\..\..
+
+echo [3/4] Installing frontend dependencies...
 cd frontend && npm install && cd ..
 
-echo [3/3] Setting up AI Service (Python)...
-cd ai-service
+echo [4/4] Setting up therapy-collab AI service...
+cd backend\services\therapy-collab-ai
 if not exist .venv (
     echo Creating virtual environment...
     python -m venv .venv
 )
-echo Installing Python requirements...
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-cd ..
+cd ..\..\..
 
 echo.
 echo ================================================
-echo   SETUP COMPLETE!
-echo   To start the project, run: START_ALL.bat
+echo   SETUP COMPLETE
+echo   To start the project, run: npm start
 echo ================================================
 pause

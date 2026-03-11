@@ -1,34 +1,31 @@
-# Autism Support Frontend
+# Personalized Autism Therapy Support Frontend
 
-React frontend for the active doctor and parent workflows.
+The frontend remains a React app, but the active feature code now lives under:
 
-## What it includes
+- `src/pages/therapy-collab/App.js`
+- `src/pages/therapy-collab/components/`
+- `src/pages/therapy-collab/contexts/`
+- `src/pages/therapy-collab/pages/`
+- `src/pages/therapy-collab/utils/`
 
-- Authentication and role-based routing
-- Doctor patient list, analysis entry, AI result review, and treatment approval
-- Parent child profiles, care plans, reviewed analysis history, and report downloads
-- Shared result components for AI output, doctor review, and saved treatment plans
+Root entry files:
+
+- `src/index.js`
+- `src/index.css`
+- `src/App.js`
 
 ## Development
 
-```bash
+```powershell
 cd frontend
 npm install
 npm start
 ```
 
-The frontend runs on `http://localhost:3000` and expects the backend API on port `5000`.
+The frontend runs on `http://localhost:3000` and proxies API traffic to the gateway on `http://localhost:5000`.
 
 ## Build
 
-```bash
+```powershell
 npm run build
 ```
-
-## Main app flow
-
-```text
-React frontend -> Express API -> FastAPI AI service
-```
-
-The current UI is centered on text or voice analysis records, doctor-reviewed treatment plans, care-plan tracking, and report access. Older prototype-only audio input components were removed from this frontend.

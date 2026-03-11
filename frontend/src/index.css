@@ -20,6 +20,19 @@
     --text-secondary: #475569;
     --text-muted: #64748b;
     --text-subtle: #94a3b8;
+    --accent-violet-soft: #7c3aed;
+    --accent-violet-strong: #6d28d9;
+    --accent-violet-hover: #5b21b6;
+    --accent-cyan-soft: #0891b2;
+    --accent-cyan-strong: #0e7490;
+    --accent-teal-soft: #0d9488;
+    --accent-teal-strong: #0f766e;
+    --accent-emerald-soft: #059669;
+    --accent-emerald-strong: #047857;
+    --accent-amber-soft: #d97706;
+    --accent-amber-strong: #b45309;
+    --accent-rose-soft: #e11d48;
+    --accent-rose-strong: #be123c;
   }
 
   body {
@@ -270,11 +283,59 @@
   }
 
   .text-slate-600 {
-    color: var(--text-subtle) !important;
+    color: var(--text-secondary) !important;
   }
 
   .text-slate-700 {
-    color: #cbd5e1 !important;
+    color: #334155 !important;
+  }
+
+  .text-violet-300 {
+    color: var(--accent-violet-strong) !important;
+  }
+
+  .text-violet-400 {
+    color: var(--accent-violet-soft) !important;
+  }
+
+  .text-cyan-300 {
+    color: var(--accent-cyan-strong) !important;
+  }
+
+  .text-cyan-400 {
+    color: var(--accent-cyan-soft) !important;
+  }
+
+  .text-teal-300 {
+    color: var(--accent-teal-strong) !important;
+  }
+
+  .text-teal-400 {
+    color: var(--accent-teal-soft) !important;
+  }
+
+  .text-emerald-300 {
+    color: var(--accent-emerald-strong) !important;
+  }
+
+  .text-emerald-400 {
+    color: var(--accent-emerald-soft) !important;
+  }
+
+  .text-amber-300 {
+    color: var(--accent-amber-strong) !important;
+  }
+
+  .text-amber-400 {
+    color: var(--accent-amber-soft) !important;
+  }
+
+  .text-rose-300 {
+    color: var(--accent-rose-strong) !important;
+  }
+
+  .text-rose-400 {
+    color: var(--accent-rose-soft) !important;
   }
 
   .bg-\[\#0a0e1a\],
@@ -331,6 +392,25 @@
     background-color: rgba(241, 245, 249, 0.98) !important;
   }
 
+  .gradient-surface .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .gradient-surface .bg-white\/\[0\.08\],
+  .gradient-surface .bg-white\/10 {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+  }
+
+  .gradient-surface .bg-white\/\[0\.1\],
+  .gradient-surface .bg-white\/15 {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+  }
+
+  .gradient-surface .bg-white\/20,
+  .gradient-surface .bg-white\/25 {
+    background-color: rgba(255, 255, 255, 0.22) !important;
+  }
+
   .border-white\/\[0\.05\],
   .border-white\/\[0\.06\],
   .border-white\/\[0\.07\],
@@ -340,6 +420,16 @@
   .border-white\/10,
   .border-white\/20 {
     border-color: rgba(148, 163, 184, 0.22) !important;
+  }
+
+  .gradient-surface .border-white\/10,
+  .gradient-surface .border-white\/\[0\.08\] {
+    border-color: rgba(255, 255, 255, 0.16) !important;
+  }
+
+  .gradient-surface .border-white\/\[0\.15\],
+  .gradient-surface .border-white\/20 {
+    border-color: rgba(255, 255, 255, 0.22) !important;
   }
 
   .hover\:bg-white\/\[0\.05\]:hover,
@@ -353,10 +443,59 @@
     background-color: rgba(99, 102, 241, 0.08) !important;
   }
 
+  .gradient-surface .hover\:bg-white\/25:hover {
+    background-color: rgba(255, 255, 255, 0.24) !important;
+  }
+
+  .gradient-surface .text-violet-300 {
+    color: #ddd6fe !important;
+  }
+
+  .gradient-surface .text-violet-400 {
+    color: #c4b5fd !important;
+  }
+
+  .gradient-surface .text-cyan-300 {
+    color: #a5f3fc !important;
+  }
+
+  .gradient-surface .text-cyan-400 {
+    color: #67e8f9 !important;
+  }
+
+  .gradient-surface .text-teal-300 {
+    color: #99f6e4 !important;
+  }
+
+  .gradient-surface .text-teal-400 {
+    color: #5eead4 !important;
+  }
+
+  .hover\:text-slate-400:hover {
+    color: var(--text-primary) !important;
+  }
+
   .hover\:text-slate-200:hover,
-  .hover\:text-slate-300:hover,
-  .hover\:text-white:hover {
+  .hover\:text-slate-300:hover {
     color: #4338ca !important;
+  }
+
+  .hover\:text-white:hover,
+  .hover\:text-violet-200:hover,
+  .hover\:text-violet-300:hover,
+  .hover\:text-violet-400:hover,
+  .group:hover .group-hover\:text-violet-300,
+  .group:hover .group-hover\:text-violet-400 {
+    color: var(--accent-violet-hover) !important;
+  }
+
+  .hover\:text-teal-300:hover {
+    color: #115e59 !important;
+  }
+
+  .group:hover .group-hover\:text-slate-300,
+  .group:hover .group-hover\:text-slate-400 {
+    color: var(--text-primary) !important;
   }
 }
 

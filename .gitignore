@@ -13,17 +13,18 @@ yarn-error.log*
 *.seed
 seed/
 uploads/
-ai-service/.venv/
+backend/services/therapy-collab-ai/.venv/
+backend/services/therapy-collab-ai/uploads/
+backend/services/therapy-collab-ai/__pycache__/
 
 # ML model files (large binary files - use Git LFS or keep local only)
-models/
+backend/services/therapy-collab-ai/models/
 *.safetensors
 *.pth
 *.pt
 *.h5
 *.onnx
-ai-service/__pycache__/
-ai-service/*.pyc
+backend/services/therapy-collab-ai/*.pyc
 server/trace.txt
 server/seed.js
 server/reproduce_login.js
